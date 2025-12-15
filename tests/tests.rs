@@ -1,3 +1,7 @@
+//! test
+
+#![deny(missing_docs)]
+
 use struct_field_names::{EnumVariantNames, StructFieldNames};
 
 #[test]
@@ -80,6 +84,7 @@ fn not_a_test_field_visibility() {
 #[test]
 fn test_variant_names() {
     #[allow(dead_code)]
+    #[allow(clippy::enum_variant_names)]
     #[derive(EnumVariantNames)]
     enum Enum {
         VarOne(i32),
@@ -89,4 +94,18 @@ fn test_variant_names() {
     assert_eq!(Enum::VARIANT_NAMES.VarOne, "VarOne");
     assert_eq!(Enum::VARIANT_NAMES.VarTwo, "VarTwo");
     assert_eq!(Enum::VARIANT_NAMES.VarThree, "VarThree");
+}
+
+/// test doc
+#[allow(dead_code)]
+#[derive(StructFieldNames)]
+pub struct StructDoc {
+    /// field one doc
+    pub field_one: i32,
+    /// field two doc
+    pub field_two: Vec<bool>,
+    /// field hello doc
+    pub hello: (String,),
+    /// field world doc
+    pub world: [u64; 3],
 }

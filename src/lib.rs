@@ -1,8 +1,8 @@
 use proc_macro2::Ident;
 use quote::{format_ident, quote};
 use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Comma, Attribute, DeriveInput, Fields,
-    Variant, Visibility,
+    Attribute, DeriveInput, Fields, Variant, Visibility, parse_macro_input, punctuated::Punctuated,
+    token::Comma,
 };
 
 #[proc_macro_derive(StructFieldNames, attributes(struct_field_names))]
@@ -17,16 +17,16 @@ pub fn derive_field_names(input: proc_macro::TokenStream) -> proc_macro::TokenSt
     });
 
     let names_struct_fields = fields.iter().map(|(vis, ident)| {
+        let doc_comment = format!("field name for `{ident}`");
         quote! {
+            #[doc = #doc_comment]
             #vis #ident: &'static str
         }
     });
 
     let names_const_fields = fields.iter().map(|(_vis, ident)| {
         let ident_name = ident.to_string();
-        let doc_comment = format!("field name for `{ident_name}`");
         quote! {
-            #[doc = #doc_comment]
             #ident: #ident_name
         }
     });
@@ -43,7 +43,7 @@ pub fn derive_field_names(input: proc_macro::TokenStream) -> proc_macro::TokenSt
         impl #impl_generics #ident #ty_generics
             #where_clause
         {
-
+            #[doc = "const FIELD_NAMES"]
             #vis const FIELD_NAMES: #names_struct_ident = #names_struct_ident {
                 #(#names_const_fields),*
             };
@@ -64,7 +64,9 @@ pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::Token
     });
 
     let names_struct_fields = variants.iter().map(|ident| {
+        let doc_comment = format!("field name for `{ident}`");
         quote! {
+            #[doc = #doc_comment]
             #ident: &'static str
         }
     });
@@ -89,6 +91,7 @@ pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::Token
         impl #impl_generics #ident #ty_generics
             #where_clause
         {
+            #[doc = "const VARIANT_NAMES"]
             #vis const VARIANT_NAMES: #names_enum_ident = #names_enum_ident {
                 #(#names_const_fields),*
             };
