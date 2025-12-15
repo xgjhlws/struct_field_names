@@ -33,7 +33,9 @@ pub fn derive_field_names(input: proc_macro::TokenStream) -> proc_macro::TokenSt
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let names_struct_ident_name = format!("fields name for `{ident}`");
     let tokens = quote! {
+        #[doc = #names_struct_ident_name]
         #vis struct #names_struct_ident {
             #(#names_struct_fields),*
         }
@@ -54,7 +56,7 @@ pub fn derive_field_names(input: proc_macro::TokenStream) -> proc_macro::TokenSt
 pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     let (vis, ident, generics) = (&ast.vis, &ast.ident, &ast.generics);
-    let names_struct_ident = format_ident!("{}VariantsStaticStr", ident.to_string());
+    let names_enum_ident = format_ident!("{}VariantsStaticStr", ident.to_string());
 
     let variants = filter_variants(match ast.data {
         syn::Data::Enum(ref e) => &e.variants,
@@ -76,16 +78,18 @@ pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::Token
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let names_enum_ident_name = format!("fields name for `{ident}`");
     let tokens = quote! {
         #[allow(non_snake_case)]
-        #vis struct #names_struct_ident {
+        #[doc = #names_enum_ident_name]
+        #vis struct #names_enum_ident {
             #(#names_struct_fields),*
         }
 
         impl #impl_generics #ident #ty_generics
             #where_clause
         {
-            #vis const VARIANT_NAMES: #names_struct_ident = #names_struct_ident {
+            #vis const VARIANT_NAMES: #names_enum_ident = #names_enum_ident {
                 #(#names_const_fields),*
             };
         }
